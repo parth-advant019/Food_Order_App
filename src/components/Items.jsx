@@ -17,6 +17,7 @@ export default function Items({ items, loadingText, isLoading }) {
             <p className="meal-item-description">{item.description}</p>
             <div className="meal-item-actions">
               <button
+                className="button"
                 onClick={() => addItem({ ...item, price: Number(item.price) })}
               >
                 add to cart

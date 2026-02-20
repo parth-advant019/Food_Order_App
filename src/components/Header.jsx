@@ -23,7 +23,7 @@ export default function Header() {
     formModal.current.open();
   }
 
-  let modalActions = <button>Close</button>;
+  let modalActions = <button className="button">Close</button>;
 
   if (cartQuantity > 0) {
     modalActions = (
@@ -48,7 +48,9 @@ export default function Header() {
           <h1>Food Shop</h1>
         </div>
         <p>
-          <button onClick={handleOpenCart}>Cart({cartQuantity})</button>
+          <button onClick={handleOpenCart} className="button">
+            Cart({cartQuantity})
+          </button>
         </p>
       </header>
     </>

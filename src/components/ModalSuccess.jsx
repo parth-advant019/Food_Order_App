@@ -2,7 +2,7 @@ import { forwardRef, useImperativeHandle, useRef } from "react";
 import { createPortal } from "react-dom";
 import UserForm from "./UserForm";
 
-const ModalForm = forwardRef(function Modal({}, ref) {
+const ModalSuccess = forwardRef(function Modal({ onClose }, ref) {
   const dialog = useRef();
 
   useImperativeHandle(ref, () => {
@@ -18,11 +18,21 @@ const ModalForm = forwardRef(function Modal({}, ref) {
 
   return createPortal(
     <dialog className="modal" ref={dialog}>
-      <h2>Enter your Data</h2>
-      <UserForm onClose={() => dialog.current.close()} />
+      <h3>your order is placed</h3>
+      <h3>Thanks for ordering.....</h3>
+      <form method="dialog" className="modal-actions">
+        <button
+          className="button"
+          onClick={() => {
+            onClose();
+          }}
+        >
+          ok
+        </button>
+      </form>
     </dialog>,
     document.getElementById("modal"),
   );
 });
 
-export default ModalForm;
+export default ModalSuccess;

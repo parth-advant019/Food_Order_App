@@ -1,7 +1,7 @@
-import { useActionState, useContext } from "react";
+import { useActionState, useContext, useRef, useEffect } from "react";
 import { CartContext } from "../store/CartContext";
 import { isEmail, isNotEmpty } from "../util/validation";
-
+import ModalSuccess from "./ModalSuccess";
 import { createOrder } from "../http";
 
 async function submitAction(prevFormState, formData, items) {
@@ -62,78 +62,108 @@ async function submitAction(prevFormState, formData, items) {
     return { errors: null, success: true };
   } catch (error) {
     return {
-      errors: [error.message || "Failed to place order"],
-      enterValue: { name, email, street, postalCode, city },
+      errors: [error.message],
     };
   }
-
-  // return { errors: null };
 }
 
-export default function UserForm() {
+export default function UserForm({ onClose }) {
   const { items } = useContext(CartContext);
 
-  const [formState, formAction] = useActionState(
+  const [formState, formAction, isSending] = useActionState(
     (prevState, formData) => submitAction(prevState, formData, items),
     { errors: null },
   );
 
+  const totalPrice = items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0,
+  );
+
+  const successModal = useRef();
+
+  useEffect(() => {
+    if (formState.success) {
+      onClose();
+      successModal.current.open();
+    }
+  }, [formState.success]);
+
+  // function handleSuccessModal() {
+  //   successModal.current.open();
+  // }
+
+  const formattedTotalPrice = `$${totalPrice.toFixed(2)}`;
+
   return (
-    <form action={formAction}>
-      <div className="control">
-        <label>First Name</label>
-        <input
-          type="text"
-          name="name"
-          id="name"
-          defaultValue={formState.enterValue?.name}
-        />
-        <label>Email </label>
-        <input
-          type="text"
-          name="email"
-          id="email"
-          defaultValue={formState.enterValue?.email}
-        />
-        <label>Street</label>
-        <input
-          type="text"
-          name="street"
-          id="street"
-          defaultValue={formState.enterValue?.street}
-        />
-        <label>Postal code </label>
-        <input
-          type="text"
-          name="postalCode"
-          id="postalCode"
-          defaultValue={formState.enterValue?.postalCode}
-        />
-        <label>city </label>
-        <input
-          type="text"
-          name="city"
-          id="city"
-          defaultValue={formState.enterValue?.city}
-        />
-
-        <div className="control-row">
-          <button type="button" className="button">
-            close
-          </button>
-          <button type="submit" className="button">
-            submit
-          </button>
-        </div>
-
-        {formState.errors && (
-          <ul className="error">
-            {formState.errors.map((error) => (
-              <li key={error}>{error}</li>
-            ))}
-          </ul>
-        )}
+    <>
+      <ModalSuccess ref={successModal} onClose={onClose} />
+      <div>
+        <p>Total Price : - {formattedTotalPrice}</p>
       </div>
-    </form>
+
+      <form action={formAction}>
+        <div className="control">
+          <label>First Name</label>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            defaultValue={formState.enterValue?.name}
+          />
+          <label>Email </label>
+          <input
+            type="text"
+            name="email"
+            id="email"
+            defaultValue={formState.enterValue?.email}
+          />
+          <label>Street</label>
+          <input
+            type="text"
+            name="street"
+            id="street"
+            defaultValue={formState.enterValue?.street}
+          />
+          <label>Postal code </label>
+          <input
+            type="text"
+            name="postalCode"
+            id="postalCode"
+            defaultValue={formState.enterValue?.postalCode}
+          />
+          <label>city </label>
+          <input
+            type="text"
+            name="city"
+            id="city"
+            defaultValue={formState.enterValue?.city}
+          />
+
+          <div className="control-row">
+            <button
+              type="button"
+              className="button"
+              onClick={() => {
+                onClose();
+              }}
+            >
+              close
+            </button>
+            <button type="submit" className="button">
+              {isSending ? "Data is submitting" : "submit"}
+            </button>
+          </div>
+
+          {formState.errors && (
+            <ul className="error">
+              {formState.errors.map((error) => (
+                <li key={error}>{error}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </form>
+    </>
   );
 }
